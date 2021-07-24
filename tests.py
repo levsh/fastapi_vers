@@ -1,6 +1,9 @@
 import pytest
 from unittest import mock
 
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
 import fastapi_vers
 from fastapi_vers import API, Version, VersionRange, merge_dicts
 
@@ -131,3 +134,36 @@ def test_API():
             pass
 
         api.get_versioned_app()
+
+
+def test_x():
+    api = API("0.3")
+
+    @api.app.get("/")
+    def root():
+        pass
+
+    @api.app.get("/foo")
+    @api.version(["0.1-latest"])
+    def foo():
+        pass
+
+    @api.app.get("/bar")
+    @api.version(["0.1-0.2"])
+    def bar():
+        pass
+
+    app = api.get_versioned_app()
+    client = TestClient(app)
+
+    assert client.get("/latest/").status_code == 200
+
+    assert client.get("/0.1/foo").status_code == 200
+    assert client.get("/0.2/foo").status_code == 200
+    assert client.get("/0.3/foo").status_code == 200
+    assert client.get("/latest/foo").status_code == 200
+
+    assert client.get("/0.1/bar").status_code == 200
+    assert client.get("/0.2/bar").status_code == 200
+    assert client.get("/0.3/bar").status_code == 404
+    assert client.get("/latest/bar").status_code == 404

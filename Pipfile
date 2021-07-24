@@ -12,6 +12,7 @@ uvicorn = "*"
 coverage = "*"
 pytest = "*"
 pytest-timeout = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"

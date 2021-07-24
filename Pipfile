@@ -10,6 +10,8 @@ uvicorn = "*"
 
 [dev-packages]
 coverage = "*"
+flake8 = "*"
+invoke = "*"
 pytest = "*"
 pytest-timeout = "*"
 requests = "*"

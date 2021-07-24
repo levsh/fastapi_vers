@@ -5,7 +5,7 @@ from fastapi_vers import API
 api = API(
     "0.3",
     app_kwds={
-        "all": {"title": "Versioned API", "version": "0.0"},
+        "default": {"title": "Versioned API", "version": "0.0"},
         "0.1": {"version": "0.1"},
         "0.2": {"version": "0.2"},
     }

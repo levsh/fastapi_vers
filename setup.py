@@ -1,11 +1,9 @@
 from setuptools import setup
 
-from fastapi_vers import __version__
-
 
 setup(
     name="fastapi_vers",
-    version=__version__,
+    version="0.1.1",
     author="Roma Koshel",
     author_email="roma.koshel@gmail.com",
     license="MIT",

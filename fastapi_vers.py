@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from packaging.version import Version
 
 
-__version__ = "0.1"
+__version__ = "0.1.1"
 
 
 def merge_dicts(src: dict, dst: dict) -> dict:
@@ -54,15 +54,30 @@ class API:
         self._latest = Version(latest)
         self._app_kwds = app_kwds or {}
         self._app = FastAPI()
+        self._min_ver = None
+        self._max_ver = None
 
     @property
     def app(self):
         return self._app
 
+    @property
+    def min_ver(self):
+        return self._min_ver
+
+    @property
+    def max_ver(self):
+        return self._max_ver
+
+    @property
+    def latest(self):
+        return self._latest
+
     def version(self, ver_ranges: List[str]):
         api_versions = [
             VersionRange(re.sub(r"^(\d\.\d)-(latest)$", fr"\1-{self._latest}", ver_range)) for ver_range in ver_ranges
         ]
+
         s = set()
         for ver_range in api_versions:
             ss = set(str(ver) for ver in ver_range)
@@ -70,15 +85,19 @@ class API:
                 raise ValueError("Versions intersection")
             s.update(ss)
 
+        for ver_range in api_versions:
+            self._min_ver = min(self._min_ver, ver_range.ver_from) if self._min_ver is not None else ver_range.ver_from
+            self._max_ver = max(self._max_ver, ver_range.ver_to) if self._max_ver is not None else ver_range.ver_to
+
         def decorator(fn):
             fn.api_versions = api_versions
             return fn
 
         return decorator
 
-    def get_versioned_app(self):
+    def get_versioned_app(self, **fastapi_kwds):
         latest = self._latest
-        app = FastAPI()
+        app = FastAPI(**fastapi_kwds)
         latest_app = self._make_ver_app(latest)
         apps = {latest: latest_app}
         for route in self.app.routes:
@@ -102,7 +121,7 @@ class API:
 
     def _make_ver_app(self, ver: Version):
         app_kwds = self._app_kwds.get(str(ver), {})
-        if "all" in self._app_kwds:
-            all_kwds = copy.deepcopy(self._app_kwds["all"])
-            app_kwds = merge_dicts(app_kwds, all_kwds)
+        if "default" in self._app_kwds:
+            default_kwds = copy.deepcopy(self._app_kwds["default"])
+            app_kwds = merge_dicts(app_kwds, default_kwds)
         return FastAPI(**app_kwds)

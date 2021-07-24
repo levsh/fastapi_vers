@@ -1,7 +1,6 @@
 import pytest
 from unittest import mock
 
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 import fastapi_vers
@@ -88,12 +87,12 @@ def test_API():
     api = API(
         "1.5",
         app_kwds={
-            "all": {"version": "0.0.0"},
+            "default": {"version": "0.0.0"},
             "0.1": {"version": "0.1"},
         },
     )
     assert api._app_kwds == {
-        "all": {"version": "0.0.0"},
+        "default": {"version": "0.0.0"},
         "0.1": {"version": "0.1"},
     }
 
@@ -167,3 +166,15 @@ def test_x():
     assert client.get("/0.2/bar").status_code == 200
     assert client.get("/0.3/bar").status_code == 404
     assert client.get("/latest/bar").status_code == 404
+
+
+def test_y():
+    api = API("0.9")
+
+    @api.app.get("/")
+    @api.version(["0.2-0.3", "0.5-0.6"])
+    def root():
+        pass
+
+    assert api.min_ver == Version("0.2")
+    assert api.max_ver == Version("0.6")

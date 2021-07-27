@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="fastapi_vers",
-    version="0.1.2",
+    version="0.1.3",
     author="Roma Koshel",
     author_email="roma.koshel@gmail.com",
     license="MIT",

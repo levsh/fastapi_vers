@@ -178,3 +178,4 @@ def test_y():
 
     assert api.min_ver == Version("0.2")
     assert api.max_ver == Version("0.6")
+    assert api.latest == Version("0.9")

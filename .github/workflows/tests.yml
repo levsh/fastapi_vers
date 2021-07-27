@@ -31,7 +31,7 @@ jobs:
         pipenv install -d
     - name: Lint with flake8
       run: |
-        ./lint.sh
+        pipenv run inv run-linter
     - name: Test
       run: |
-        ./tests.sh
+        pipenv run inv run-tests

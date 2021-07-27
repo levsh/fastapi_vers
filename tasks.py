@@ -97,3 +97,15 @@ def bump_dev(c):
             f.seek(0)
             f.write(text)
             f.truncate()
+
+
+@task
+def run_linter(c):
+    cmd = "pipenv run flake8 --filename=*.py --count --show-source --statistics"
+    c.run(cmd)
+
+
+@task
+def run_tests(c):
+    cmd = "pipenv run coverage run --source fastapi_vers -m pytest tests.py && pipenv run coverage report -m"
+    c.run(cmd)

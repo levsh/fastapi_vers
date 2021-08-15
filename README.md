@@ -3,6 +3,10 @@ API versioning concept for FastAPI
 
 ![tests](https://github.com/levsh/fastapi_vers/workflows/tests/badge.svg)
 
+```bash
+pip install fastapi_vers
+```
+
 ```python
 from fastapi import FastAPI
 from fastapi_vers import API

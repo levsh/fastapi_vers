@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from packaging.version import Version
 
 
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 
 
 def merge_dicts(src: dict, dst: dict) -> dict:

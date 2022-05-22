@@ -1,9 +1,10 @@
-import pytest
 from unittest import mock
 
-from fastapi.testclient import TestClient
-
 import fastapi_vers
+import pytest
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from fastapi.testclient import TestClient
 from fastapi_vers import API, Version, VersionRange, merge_dicts
 
 
@@ -111,12 +112,14 @@ def test_API():
     with mock.patch.object(fastapi_vers.FastAPI, "__init__") as mock_call:
         mock_call.return_value = None
         api._make_ver_app(Version("0.0"))
-        mock_call.assert_called_once_with(version="0.0.0")
+        mock_call.assert_called_once()
+        assert mock_call.call_args_list[0].kwargs["version"] == "0.0.0"
 
     with mock.patch.object(fastapi_vers.FastAPI, "__init__") as mock_call:
         mock_call.return_value = None
         api._make_ver_app(Version("0.1"))
-        mock_call.assert_called_once_with(version="0.1")
+        mock_call.assert_called_once()
+        assert mock_call.call_args_list[0].kwargs["version"] == "0.1"
 
     @api.app.get("/")
     @api.version(["0.1-0.3"])
@@ -179,3 +182,27 @@ def test_y():
     assert api.min_ver == Version("0.2")
     assert api.max_ver == Version("0.6")
     assert api.latest == Version("0.9")
+
+
+def test_exception():
+    api = API("0.1")
+
+    @api.app.get("/test")
+    @api.version(["0.1-latest"])
+    def test():
+        raise KeyError("x")
+
+    @api.app.exception_handler(KeyError)
+    def handler(request, exc):
+        return JSONResponse(status_code=404, content=str(exc))
+
+    app = api.get_versioned_app()
+    client = TestClient(app)
+
+    assert client.get("/latest/test").status_code == 404
+
+    root_app = FastAPI()
+    root_app.mount("/app", app)
+    client = TestClient(root_app)
+
+    assert client.get("/app/latest/test").status_code == 404

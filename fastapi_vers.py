@@ -5,8 +5,7 @@ from typing import Dict, List
 from fastapi import FastAPI
 from packaging.version import Version
 
-
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 
 def merge_dicts(src: dict, dst: dict) -> dict:
@@ -100,7 +99,7 @@ class API:
         app = FastAPI(**fastapi_kwds)
         latest_app = self._make_ver_app(latest)
         apps = {latest: latest_app}
-        for route in self.app.routes:
+        for route in self._app.routes:
             ver_ranges = getattr(route.endpoint, "api_versions", None)
             if not ver_ranges:
                 apps[latest].routes.append(route)
@@ -124,4 +123,5 @@ class API:
         if "default" in self._app_kwds:
             default_kwds = copy.deepcopy(self._app_kwds["default"])
             app_kwds = merge_dicts(app_kwds, default_kwds)
+        app_kwds.setdefault("exception_handlers", {}).update(self._app.exception_handlers)
         return FastAPI(**app_kwds)

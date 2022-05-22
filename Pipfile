@@ -9,12 +9,14 @@ packaging = "*"
 uvicorn = "*"
 
 [dev-packages]
+build = "*"
 coverage = "*"
 flake8 = "*"
 invoke = "*"
 pytest = "*"
 pytest-timeout = "*"
 requests = "*"
+twine = "*"
 
 [requires]
 python_version = "3.8"
